@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>tic tac toe</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+    <script src="logic.js"></script>
+    <script>
+        const imageEmptyUrl = "storage/imageEmpty.png";
+        const imageXUrl = "storage/imageX.png";
+        const imageOUrl = "storage/imageO.png";
+
+        let board = new Board();
+        function initBoard()
+        {
+            let cells = document.querySelectorAll("#board tr td");
+            for(let i=0;i<cells.length;i++)
+                cells[i].innerHTML = "<img src='"+imageEmptyUrl+"' id="+i+" onclick='clicked(this);'>";
+        }
+        function clicked(imageTag)
+        {
+            let cellNum = imageTag.id;
+            let cords = Board.prototype.getCellLocationByCellNumber(cellNum);
+            let row = cords.row;
+            let column = cords.column;
+            
+            let response = board.makeMove(row, column);
+            if(!response.isSuccesfull)
+            {
+                messageP.innerHTML = response.message;
+            }
+            else
+            {
+                messageP.innerHTML = "";
+                imageTag.setAttribute("src", board.isXTurn?imageOUrl:imageXUrl);
+                if(response.isGameEnded)
+                {
+                    setTimeout(function()
+                    {
+                        alert(response.whoWon+" won!");
+                        initBoard();
+                    }, 0)
+                    board = new Board();
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<div id = "boardDiv">
+<table id = "board">
+<tr><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td></tr>
+<tr><td></td><td></td><td></td></tr>
+</table>
+</div>
+<br><br>
+<p id="messageP"></p>
+</body>
+<script>
+    initBoard();
+    let messageP = document.querySelector("#messageP");
+</script>
+</html>

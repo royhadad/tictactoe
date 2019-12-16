@@ -1,0 +1,5 @@
+#board, #board td
+{
+    border-collapse: collapse;
+    border: 5px black solid;
+}
