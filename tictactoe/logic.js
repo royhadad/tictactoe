@@ -1,3 +1,5 @@
+//#region originally from logic.js
+
 class ResponseObj
 {
     constructor()
@@ -92,7 +94,132 @@ class Board
 }
 Board.prototype.getCellLocationByCellNumber = (cellNumber) => {return {row: Math.floor(cellNumber/3), column: cellNumber%3};}
 Board.prototype.getCellNumberByCellLocation = (cellLocation) => {return cellLocation.row*3+cellLocation.column;}
+
+//#endregion
+
+//#region originally from index.js
+
+const imageEmptyUrl = "storage/imageEmpty.png";
+const imageXUrl = "storage/imageX.png";
+const imageOUrl = "storage/imageO.png";
+const COMPUTER_THINKING_TIME_IN_MILISECONDS = 1000;
+let isHumanFirst;
+let board;
+
+function makeHumanFirst()
+{
+    isHumanFirst = true;
+    document.getElementById("humanFirstButton").disabled = true;
+    document.getElementById("computerFirstButton").disabled = false;
+
+}
+function makeComputerFirst()
+{
+    isHumanFirst = false;
+    document.getElementById("humanFirstButton").disabled = false;
+    document.getElementById("computerFirstButton").disabled = true;
+}
+function onPageLoad()
+{
+    makeHumanFirst();
+    initBoard();
+    let messageP = document.querySelector("#messageP");
+}
+function initBoard()
+{
+    board = new Board();
+    let cells = document.querySelectorAll("#board tr td");
+    for (let i = 0; i < cells.length; i++)
+        cells[i].innerHTML = "<img src='" + imageEmptyUrl + "' id=" + i + " onclick='clicked(this);'>";
+    if(!isHumanFirst)
+    {
+        makeComputerWaitThenMove();
+    }
+}
+function clicked(imageTag)
+{
+    let response = makeHumanMove(imageTag);
+    if (response.isSuccesfull && !response.isGameEnded)
+    {
+        makeComputerWaitThenMove();
+    }
+}
+function freezeBoard()
+{
+    let cells = document.querySelectorAll("#board tr td img");
+    for (let i = 0; i < cells.length; i++)
+        cells[i].onclick = null;
+    document.getElementById("restartButton").disabled = true;
+}
+function unfreezeBoard()
+{
+    let cells = document.querySelectorAll("#board tr td img");
+    for (let i = 0; i < cells.length; i++)
+        cells[i].setAttribute("onclick","clicked(this);");
+    document.getElementById("restartButton").disabled = false;
+}
+function makeHumanMove(imageTag)
+{
+    let cellNum = imageTag.id;
+    let cords = Board.prototype.getCellLocationByCellNumber(cellNum);
+    let row = cords.row;
+    let column = cords.column;
+
+    let response = board.makeMove(row, column);
+    if (!response.isSuccesfull)
+    {
+        messageP.innerHTML = response.message;
+    }
+    else
+    {
+        messageP.innerHTML = "";
+        imageTag.setAttribute("src", board.isXTurn ? imageOUrl : imageXUrl);
+        if (response.isGameEnded)
+        {
+            setTimeout(function ()
+            {
+                alert(response.whoWon + " won!");
+                initBoard();
+            }, 0)
+            board = new Board();
+        }
+    }
+    return response;
+}
+function makeComputerMove()
+{
+    let computerMove = basicComputer(board);
+    let response = board.makeMove(computerMove.row, computerMove.column);
+    let cellNumber = Board.prototype.getCellNumberByCellLocation(computerMove);
+    let imageTag = document.getElementById("" + cellNumber);
+    imageTag.setAttribute("src", board.isXTurn ? imageOUrl : imageXUrl);
+    if (response.isGameEnded)
+    {
+        setTimeout(function ()
+        {
+            alert(response.whoWon + " won!");
+            initBoard();
+        }, 0)
+        board = new Board();
+    }
+    return response;
+}
+function makeComputerWaitThenMove()
+{
+    freezeBoard();
+    setTimeout(()=>
+    {
+        makeComputerMove();
+        unfreezeBoard();
+    }, COMPUTER_THINKING_TIME_IN_MILISECONDS);
+}
+//#endregion
+
+//#region computer logic
+
 function basicComputer(board)
 {
     return board.getLegalMoves()[0];
 }
+
+//#endregion
