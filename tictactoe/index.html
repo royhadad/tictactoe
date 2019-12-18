@@ -13,24 +13,38 @@
         const imageXUrl = "storage/imageX.png";
         const imageOUrl = "storage/imageO.png";
         const COMPUTER_THINKING_TIME_IN_MILISECONDS = 1000;
-        let board = new Board();
+        let isHumanFirst;
+        let board;
+        function makeHumanFirst()
+        {
+            isHumanFirst = true;
+            document.getElementById("humanFirstButton").disabled = true;
+            document.getElementById("computerFirstButton").disabled = false;
+
+        }
+        function makeComputerFirst()
+        {
+            isHumanFirst = false;
+            document.getElementById("humanFirstButton").disabled = false;
+            document.getElementById("computerFirstButton").disabled = true;
+        }
         function initBoard()
         {
+            board = new Board();
             let cells = document.querySelectorAll("#board tr td");
             for (let i = 0; i < cells.length; i++)
                 cells[i].innerHTML = "<img src='" + imageEmptyUrl + "' id=" + i + " onclick='clicked(this);'>";
+            if(!isHumanFirst)
+            {
+                makeComputerWaitThenMove();
+            }
         }
         function clicked(imageTag)
         {
             let response = makeHumanMove(imageTag);
             if (response.isSuccesfull && !response.isGameEnded)
             {
-                freezeBoard();
-                setTimeout(()=>
-                {
-                    makeComputerMove();
-                    unfreezeBoard();
-                }, COMPUTER_THINKING_TIME_IN_MILISECONDS);
+                makeComputerWaitThenMove();
             }
         }
         function freezeBoard()
@@ -38,12 +52,14 @@
             let cells = document.querySelectorAll("#board tr td img");
             for (let i = 0; i < cells.length; i++)
                 cells[i].onclick = null;
+            document.getElementById("restartButton").disabled = true;
         }
         function unfreezeBoard()
         {
             let cells = document.querySelectorAll("#board tr td img");
             for (let i = 0; i < cells.length; i++)
                 cells[i].setAttribute("onclick","clicked(this);");
+            document.getElementById("restartButton").disabled = false;
         }
         function makeHumanMove(imageTag)
         {
@@ -91,6 +107,15 @@
             }
             return response;
         }
+        function makeComputerWaitThenMove()
+        {
+            freezeBoard();
+            setTimeout(()=>
+            {
+                makeComputerMove();
+                unfreezeBoard();
+            }, COMPUTER_THINKING_TIME_IN_MILISECONDS);
+        }
     </script>
 </head>
 
@@ -116,9 +141,13 @@
     </div>
     <br>
     <br>
+    <button id="humanFirstButton" onclick="makeHumanFirst();">I WANT TO BE X IN THE NEXT GAME</button>
+    <button id="computerFirstButton" onclick="makeComputerFirst();">I WANT TO BE O IN THE NEXT GAME</button>
+    <button id="restartButton" onclick="initBoard();">RESTART GAME</button>
     <p id="messageP"></p>
 </body>
 <script>
+    makeHumanFirst();
     initBoard();
     let messageP = document.querySelector("#messageP");
 </script>
