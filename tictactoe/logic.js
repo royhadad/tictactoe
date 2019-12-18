@@ -178,7 +178,7 @@ function makeHumanMove(imageTag)
         {
             setTimeout(function ()
             {
-                alert(response.whoWon + " won!");
+                alert((response.whoWon=="D")?("Draw!"):( response.whoWon + " won!"));
                 initBoard();
             }, 0)
             board = new Board();
@@ -197,7 +197,7 @@ function makeComputerMove()
     {
         setTimeout(function ()
         {
-            alert(response.whoWon + " won!");
+            alert((response.whoWon=="D")?("Draw!"):( response.whoWon + " won!"));
             initBoard();
         }, 0)
         board = new Board();
@@ -219,7 +219,8 @@ function makeComputerWaitThenMove()
 
 function basicComputer(board)
 {
-    return board.getLegalMoves()[0];
+    let legalMoves = board.getLegalMoves();
+    return legalMoves[Math.floor(Math.random()*legalMoves.length)];
 }
 
 //#endregion
