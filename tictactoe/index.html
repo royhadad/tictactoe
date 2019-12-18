@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -11,56 +12,115 @@
         const imageEmptyUrl = "storage/imageEmpty.png";
         const imageXUrl = "storage/imageX.png";
         const imageOUrl = "storage/imageO.png";
-
+        const COMPUTER_THINKING_TIME_IN_MILISECONDS = 1000;
         let board = new Board();
         function initBoard()
         {
             let cells = document.querySelectorAll("#board tr td");
-            for(let i=0;i<cells.length;i++)
-                cells[i].innerHTML = "<img src='"+imageEmptyUrl+"' id="+i+" onclick='clicked(this);'>";
+            for (let i = 0; i < cells.length; i++)
+                cells[i].innerHTML = "<img src='" + imageEmptyUrl + "' id=" + i + " onclick='clicked(this);'>";
         }
         function clicked(imageTag)
+        {
+            let response = makeHumanMove(imageTag);
+            if (response.isSuccesfull && !response.isGameEnded)
+            {
+                freezeBoard();
+                setTimeout(()=>
+                {
+                    makeComputerMove();
+                    unfreezeBoard();
+                }, COMPUTER_THINKING_TIME_IN_MILISECONDS);
+            }
+        }
+        function freezeBoard()
+        {
+            let cells = document.querySelectorAll("#board tr td img");
+            for (let i = 0; i < cells.length; i++)
+                cells[i].onclick = null;
+        }
+        function unfreezeBoard()
+        {
+            let cells = document.querySelectorAll("#board tr td img");
+            for (let i = 0; i < cells.length; i++)
+                cells[i].setAttribute("onclick","clicked(this);");
+        }
+        function makeHumanMove(imageTag)
         {
             let cellNum = imageTag.id;
             let cords = Board.prototype.getCellLocationByCellNumber(cellNum);
             let row = cords.row;
             let column = cords.column;
-            
+
             let response = board.makeMove(row, column);
-            if(!response.isSuccesfull)
+            if (!response.isSuccesfull)
             {
                 messageP.innerHTML = response.message;
             }
             else
             {
                 messageP.innerHTML = "";
-                imageTag.setAttribute("src", board.isXTurn?imageOUrl:imageXUrl);
-                if(response.isGameEnded)
+                imageTag.setAttribute("src", board.isXTurn ? imageOUrl : imageXUrl);
+                if (response.isGameEnded)
                 {
-                    setTimeout(function()
+                    setTimeout(function ()
                     {
-                        alert(response.whoWon+" won!");
+                        alert(response.whoWon + " won!");
                         initBoard();
                     }, 0)
                     board = new Board();
                 }
             }
+            return response;
+        }
+        function makeComputerMove()
+        {
+            let computerMove = basicComputer(board);
+            let response = board.makeMove(computerMove.row, computerMove.column);
+            let cellNumber = Board.prototype.getCellNumberByCellLocation(computerMove);
+            let imageTag = document.getElementById("" + cellNumber);
+            imageTag.setAttribute("src", board.isXTurn ? imageOUrl : imageXUrl);
+            if (response.isGameEnded)
+            {
+                setTimeout(function ()
+                {
+                    alert(response.whoWon + " won!");
+                    initBoard();
+                }, 0)
+                board = new Board();
+            }
+            return response;
         }
     </script>
 </head>
+
 <body>
-<div id = "boardDiv">
-<table id = "board">
-<tr><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td></tr>
-<tr><td></td><td></td><td></td></tr>
-</table>
-</div>
-<br><br>
-<p id="messageP"></p>
+    <div id="boardDiv">
+        <table id="board">
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <br>
+    <br>
+    <p id="messageP"></p>
 </body>
 <script>
     initBoard();
     let messageP = document.querySelector("#messageP");
 </script>
+
 </html>

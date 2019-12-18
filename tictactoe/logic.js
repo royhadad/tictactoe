@@ -25,6 +25,15 @@ class Board
             throw new Error("index out of bounds exception");
         return this.rows[row][column];
     }
+    getLegalMoves()
+    {
+        let moves = [];
+        for(let row=0;row<3;row++)
+            for(let column=0;column<3;column++)
+                if(this.rows[row][column]=="E")
+                    moves.push({row, column});
+        return moves;
+    }
     makeMove(row, column)
     {
         let response = new ResponseObj();
@@ -62,14 +71,12 @@ class Board
             for(let column=0;column<3;column++)
                 if(this.rows[row][column]=="E")
                     isBoardFull = false;
-        if(isBoardFull)
-            return {isGameEnded: true, whoWon: "D"};
         
         let whoWon = null;
         if(isEqual(0,0,0,1,0,2)) whoWon=this.rows[0][0]; 
         if(isEqual(1,0,1,1,1,2)) whoWon=this.rows[1][0]; 
         if(isEqual(2,0,2,1,2,2)) whoWon=this.rows[2][0]; 
-        if(isEqual(0,0,1,2,2,0)) whoWon=this.rows[0][0]; 
+        if(isEqual(0,0,1,0,2,0)) whoWon=this.rows[0][0]; 
         if(isEqual(0,1,1,1,2,1)) whoWon=this.rows[0][1]; 
         if(isEqual(0,2,1,2,2,2)) whoWon=this.rows[0][2]; 
         if(isEqual(0,0,1,1,2,2)) whoWon=this.rows[0][0]; 
@@ -77,10 +84,17 @@ class Board
 
         if(whoWon)
             return {isGameEnded: true, whoWon: whoWon};
+        else if(isBoardFull)
+            return {isGameEnded: true, whoWon: "D"};
         else
             return {isGameEnded: false, whoWon:null};
     }
 }
 Board.prototype.getCellLocationByCellNumber = (cellNumber) => {return {row: Math.floor(cellNumber/3), column: cellNumber%3};}
+Board.prototype.getCellNumberByCellLocation = (cellLocation) => {return cellLocation.row*3+cellLocation.column;}
 let x=5;
 let y=6;
+function basicComputer(board)
+{
+    return board.getLegalMoves()[0];
+}
