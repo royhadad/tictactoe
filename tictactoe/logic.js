@@ -83,3 +83,4 @@ class Board
 }
 Board.prototype.getCellLocationByCellNumber = (cellNumber) => {return {row: Math.floor(cellNumber/3), column: cellNumber%3};}
 let x=5;
+let y=6;
