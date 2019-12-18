@@ -92,8 +92,6 @@ class Board
 }
 Board.prototype.getCellLocationByCellNumber = (cellNumber) => {return {row: Math.floor(cellNumber/3), column: cellNumber%3};}
 Board.prototype.getCellNumberByCellLocation = (cellLocation) => {return cellLocation.row*3+cellLocation.column;}
-let x=5;
-let y=6;
 function basicComputer(board)
 {
     return board.getLegalMoves()[0];
